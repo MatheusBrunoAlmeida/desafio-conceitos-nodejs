@@ -9,11 +9,9 @@ app.use(express.json());
 app.use(cors());
 
 const repositories = [];
-const likes = [];
+
 
 app.get("/repositories", (request, response) => {
-  // const {id, title, url, techs, likes} = request.query;
-
   return response.json(repositories);
 });
 
@@ -25,7 +23,7 @@ app.post("/repositories", (request, response) => {
     title,
     url, 
     techs,
-    likes:likes,
+    likes:0,
   }
 
   repositories.push(repository);
@@ -49,7 +47,7 @@ app.put("/repositories/:id", (request, response) => {
     title,
     url,
     techs,
-    likes: likes
+    likes: repositories[repositoryIndex].likes,
   }
 
   repositories[repositoryIndex] = repository;
@@ -69,25 +67,22 @@ app.delete("/repositories/:id", (request, response) => {
 
   repositories.splice(repositoryIndex,1);
 
-  return response.status(204).send();
+  return response.status(204).send(); 
 
 });
 
 app.post("/repositories/:id/like", (request, response) => {
-  const {id, like} = request.params;
+  const {id} = request.params;
 
-  // const repositoryIndex = repositories.findIndex(repository => repository.id == id);
-  // if (repositoryIndex < 0){
-  //   return response.status(400).json({error: 'Repository dont exsit '});
-  // }
+  const repositoryIndex = repositories.findIndex(repository => repository.id == id);
 
-  const likes = {
-    id: id,
-    like: like
+  if(repositoryIndex < 0){
+    return response.status(400).json({error: 'Repository dont exist'});
   }
 
-  likes[repositoryIndex].push(likes);
-  return response.json(likes);
+  repositories[repositoryIndex].likes++
+
+  return response.json(repositories[repositoryIndex]);
 });
 
 module.exports = app;
